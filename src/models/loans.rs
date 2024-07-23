@@ -10,6 +10,7 @@ pub struct Loan {
     pub loan_amount: f32,
     pub interest_rate: f32,
     pub repayment_period: u32,
+    pub lender_id: u32,
     pub updated_at: chrono::NaiveDateTime,
     pub created_at: chrono::NaiveDateTime,
 }
@@ -22,4 +23,5 @@ pub struct NewLoan {
     pub loan_amount: f32,
     pub interest_rate: f32,
     pub repayment_period: u32,
+    pub lender_id: u32,
 }

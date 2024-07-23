@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 pub struct LoanApplication {
     pub id: u32,
     pub amount: f32,
-    pub user_id: u32,
+    pub borrower_id: u32,
     pub loan_id: u32,
     pub updated_at: chrono::NaiveDateTime,
     pub created_at: chrono::NaiveDateTime,
@@ -18,6 +18,6 @@ pub struct LoanApplication {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct NewLoanApplication {
     pub amount: f32,
-    pub user_id: u32,
+    pub borrower_id: u32,
     pub loan_id: u32,
 }

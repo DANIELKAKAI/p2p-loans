@@ -5,7 +5,7 @@ diesel::table! {
         id -> Int4,
         amount -> Float8,
         loan_id -> Int4,
-        user_id -> Int4,
+        borrower_id -> Int4,
         updated_at -> Timestamp,
         created_at -> Timestamp,
     }
@@ -16,6 +16,7 @@ diesel::table! {
         id -> Int4,
         loan_name -> Varchar,
         loan_amount -> Float8,
+        lender_id -> Int4,
         interest_rate -> Float8,
         repayment_period -> Int4,
         updated_at -> Timestamp,
@@ -41,7 +42,8 @@ diesel::table! {
 }
 
 diesel::joinable!(loan_applications -> loans (loan_id));
-diesel::joinable!(loan_applications -> users (user_id));
+diesel::joinable!(loan_applications -> users (borrower_id));
+diesel::joinable!(loans -> users (lender_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     loan_applications,
