@@ -1,8 +1,10 @@
+use chrono::serde::{Deserialize, Serialize};
 use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
+
+use crate::schema;
 
 #[derive(Queryable, Selectable, Serialize, Deserialize)]
-#[diesel(table_name = crate::schema::users)]
+#[diesel(table_name = schema::users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct User {
     pub id: u32,
@@ -16,7 +18,7 @@ pub struct User {
 }
 
 #[derive(Queryable, Selectable, Debug, Insertable, Serialize, Deserialize)]
-#[diesel(table_name = crate::schema::users)]
+#[diesel(table_name = schema::users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct NewUser {
     pub first_name: String,

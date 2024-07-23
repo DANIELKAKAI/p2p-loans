@@ -1,8 +1,9 @@
+use crate::schema;
+use chrono::serde::{Deserialize, Serialize};
 use diesel::prelude::*;
-use serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Selectable, Serialize, Deserialize)]
-#[diesel(table_name = crate::schema::loans)]
+#[diesel(table_name = schema::loans)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Loan {
     pub id: u32,
@@ -16,7 +17,7 @@ pub struct Loan {
 }
 
 #[derive(Queryable, Selectable, Debug, Insertable, Serialize, Deserialize)]
-#[diesel(table_name = crate::schema::loans)]
+#[diesel(table_name = schema::loans)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct NewLoan {
     pub loan_name: String,
