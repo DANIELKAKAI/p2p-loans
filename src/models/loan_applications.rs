@@ -1,15 +1,15 @@
 use crate::schema;
-use chrono::serde::{Deserialize, Serialize};
 use diesel::prelude::*;
+use serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Selectable, Serialize, Deserialize)]
 #[diesel(table_name = schema::loan_applications)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct LoanApplication {
-    pub id: u32,
+    pub id: i32,
     pub amount: f32,
-    pub borrower_id: u32,
-    pub loan_id: u32,
+    pub borrower_id: i32,
+    pub loan_id: i32,
     pub updated_at: chrono::NaiveDateTime,
     pub created_at: chrono::NaiveDateTime,
 }
@@ -19,6 +19,6 @@ pub struct LoanApplication {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct NewLoanApplication {
     pub amount: f32,
-    pub borrower_id: u32,
-    pub loan_id: u32,
+    pub borrower_id: i32,
+    pub loan_id: i32,
 }

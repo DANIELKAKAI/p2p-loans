@@ -1,5 +1,11 @@
 // @generated automatically by Diesel CLI.
 
+pub mod sql_types {
+    #[derive(diesel::query_builder::QueryId, Clone, diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "user_type_enum"))]
+    pub struct UserTypeEnum;
+}
+
 diesel::table! {
     loan_applications (id) {
         id -> Int4,
@@ -25,6 +31,9 @@ diesel::table! {
 }
 
 diesel::table! {
+    use diesel::sql_types::*;
+    use super::sql_types::UserTypeEnum;
+
     users (id) {
         id -> Int4,
         #[max_length = 256]
@@ -38,6 +47,7 @@ diesel::table! {
         active -> Bool,
         updated_at -> Timestamp,
         created_at -> Timestamp,
+        user_type -> UserTypeEnum,
     }
 }
 

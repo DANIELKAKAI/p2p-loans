@@ -1,12 +1,9 @@
 use crate::models::loan_applications::{LoanApplication, NewLoanApplication};
-
-mod crate::schema::loan_applications;
-use crate::schema::loan_applications;
-use crate::schema::loan_applications::dsl::*;
-use crate::schema::loans;
 use diesel::prelude::*;
 
 pub fn get_all_loan_applications(connection: &mut PgConnection) -> Vec<LoanApplication> {
+    use crate::schema::loan_applications::dsl::*;
+
     let mut all_loan_applications: Vec<LoanApplication> = Vec::new();
     let results = loan_applications
         .select(LoanApplication::as_select())
@@ -28,6 +25,8 @@ pub fn get_loan_applications_by_lender_id(
     connection: &mut PgConnection,
     user_id: i32,
 ) -> Option<Vec<LoanApplication>> {
+    use crate::schema::loan_applications::dsl::*;
+
     let mut all_loan_applications: Vec<LoanApplication> = Vec::new();
 
     let results = loan_applications::table
@@ -52,11 +51,13 @@ pub fn get_loan_applications_by_borrower_id(
     connection: &mut PgConnection,
     user_id: i32,
 ) -> Option<Vec<LoanApplication>> {
+    use crate::schema::loan_applications::dsl::*;
+
     let mut all_loan_applications: Vec<LoanApplication> = Vec::new();
 
     let results = loan_applications
-        .filter(loan_applications::borrower_id.eq(user_id))
-        .select(loan_applications::all_columns)
+        .filter(borrower_id.eq(user_id))
+        .select(crate::schema::loan_applications::all_columns)
         .load(connection);
 
     match results {
@@ -75,7 +76,7 @@ pub fn add_loan_application(
     new_loan_application: NewLoanApplication,
     connection: &mut PgConnection,
 ) -> Result<LoanApplication, diesel::result::Error> {
-    diesel::insert_into(loan_applications::table)
+    diesel::insert_into(crate::schema::loan_applications::table)
         .values(&new_loan_application)
         .get_result::<LoanApplication>(connection)
 }

@@ -1,11 +1,14 @@
+mod db_operations;
+mod models;
+mod schema;
+
 use diesel::prelude::*;
 use dotenv::dotenv;
 use std::env;
 
-mod db_operations;
-use db_operations::users::{add_user};
+use db_operations::loans::get_loans_by_lender_id;
+//use db_operations::users::{add_user, get_a_user_by_id};
 
-mod models;
 use models::users::NewUser;
 
 pub fn establish_connection() -> PgConnection {
@@ -18,19 +21,9 @@ pub fn establish_connection() -> PgConnection {
 fn main() {
     let mut connection = establish_connection();
 
-    let new_user = NewUser{
-        first_name:"daniel".to_string(),
-        last_name:"kakai".to_string(),
-        email:"daniel@gmail.com".to_string(),
-        password:"password".to_string()
-    }
+    let loans = get_loans_by_lender_id(&mut connection, 3);
 
-    match add_user(new_user, &mut connection) {
-        Ok(user) => {
-            println!("Successfully added user: {:?}", user);
-        }
-        Err(e) => {
-            println!("Error occurred: {:?}", e);
-        }
+    for loan in loans {
+        println!("{:?}", loan);
     }
 }

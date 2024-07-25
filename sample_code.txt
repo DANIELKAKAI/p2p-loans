@@ -1,0 +1,22 @@
+
+
+let new_user = NewUser {
+        first_name: "daniel".to_string(),
+        last_name: "kakai".to_string(),
+        email: "daniel2@gmail.com".to_string(),
+        password: "password".to_string(),
+    };
+
+    match add_user(new_user, &mut connection) {
+        Ok(user) => {
+            println!("Successfully added user: {:?}", user);
+        }
+        Err(e) => {
+            println!("Error occurred: {:?}", e);
+        }
+    }
+
+    match get_a_user_by_id(&mut connection, 3) {
+        Some(user) => println!("{:?}", user),
+        None => println!("none"),
+    }
