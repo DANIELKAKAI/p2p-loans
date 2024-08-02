@@ -26,4 +26,12 @@ fn main() {
     for loan in loans {
         println!("{:?}", loan);
     }
+
+    let loan = get_loans_by_lender_id(&mut connection, 1);
+    println!("{:?}", loan);
+
+    match get_a_user_by_id(&mut connection, 3) {
+        Some(user) => println!("{:?}", user),
+        None => println!("none"),
+    }
 }
