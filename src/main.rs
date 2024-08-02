@@ -6,7 +6,7 @@ use diesel::prelude::*;
 use dotenv::dotenv;
 use std::env;
 
-use db_operations::loans::get_loans_by_lender_id;
+use db_operations::loans::{get_all_loans, get_loans_by_lender_id};
 //use db_operations::users::{add_user, get_a_user_by_id};
 
 use models::users::NewUser;
@@ -21,7 +21,7 @@ pub fn establish_connection() -> PgConnection {
 fn main() {
     let mut connection = establish_connection();
 
-    let loans = get_loans_by_lender_id(&mut connection, 3);
+    let loans = get_all_loans(&mut connection);
 
     for loan in loans {
         println!("{:?}", loan);
