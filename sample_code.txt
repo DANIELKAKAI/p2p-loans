@@ -59,3 +59,29 @@ let loans = get_loan_applications_by_lender_id(&mut connection, 3);
     for loan in loans {
         println!("{:?}", loan);
     }
+
+
+    let new_loan_app = NewLoanApplication {
+        amount: 100.0,
+        borrower_id: 1,
+        loan_id: 100,
+    };
+
+    match add_loan_application(new_loan_app, &mut connection) {
+        Ok(loan) => {
+            println!("Successfully added loan: {:?}", loan);
+        }
+        Err(e) => {
+            println!("Error occurred: {:?}", e);
+        }
+    }
+
+    let loans = get_loan_applications_by_borrower_id(&mut connection, 1);
+    for loan in loans {
+        println!("{:?}", loan);
+    }
+
+    let loans = get_all_loan_applications(&mut connection);
+    for loan in loans {
+        println!("{:?}", loan);
+    }
