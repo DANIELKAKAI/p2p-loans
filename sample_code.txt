@@ -7,16 +7,55 @@ let new_user = NewUser {
         password: "password".to_string(),
     };
 
-    match add_user(new_user, &mut connection) {
-        Ok(user) => {
-            println!("Successfully added user: {:?}", user);
-        }
-        Err(e) => {
-            println!("Error occurred: {:?}", e);
-        }
+match add_user(new_user, &mut connection) {
+    Ok(user) => {
+        println!("Successfully added user: {:?}", user);
+    }
+    Err(e) => {
+        println!("Error occurred: {:?}", e);
+    }
+}
+
+match get_a_user_by_id(&mut connection, 3) {
+    Some(user) => println!("{:?}", user),
+    None => println!("none"),
+}
+
+let loans = get_all_loans(&mut connection);
+
+for loan in loans {
+    println!("{:?}", loan);
+}
+
+
+let new_loan = NewLoan {
+        loan_name: "loan test latest".to_string(),
+        loan_amount: 22.2,
+        interest_rate: 33.2,
+        repayment_period: 3,
+        lender_id: 3,
+    };
+
+match add_loan(new_loan, &mut connection) {
+    Ok(loan) => {
+        println!("Successfully added loan: {:?}", loan);
+    }
+    Err(e) => {
+        println!("Error occurred: {:?}", e);
+    }
+}
+
+let loans = get_loans_by_lender_id(&mut connection, 3);
+for loan in loans {
+    println!("{:?}", loan);
+}
+
+let loans = get_all_loans(&mut connection);
+    for loan in loans {
+        println!("{:?}", loan);
     }
 
-    match get_a_user_by_id(&mut connection, 3) {
-        Some(user) => println!("{:?}", user),
-        None => println!("none"),
+let loans = get_loan_applications_by_lender_id(&mut connection, 3);
+    for loan in loans {
+        println!("{:?}", loan);
     }

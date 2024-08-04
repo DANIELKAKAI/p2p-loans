@@ -6,10 +6,12 @@ use diesel::prelude::*;
 use dotenv::dotenv;
 use std::env;
 
-use db_operations::loans::{get_all_loans, get_loans_by_lender_id};
+//use db_operations::loans::{add_loan, get_all_loans, get_loans_by_lender_id};
 //use db_operations::users::{add_user, get_a_user_by_id};
+use db_operations::loan_applications::get_loan_applications_by_lender_id;
 
-use models::users::NewUser;
+//use models::loans::NewLoan;
+//use models::users::NewUser;
 
 pub fn establish_connection() -> PgConnection {
     dotenv().ok();
@@ -21,17 +23,8 @@ pub fn establish_connection() -> PgConnection {
 fn main() {
     let mut connection = establish_connection();
 
-    let loans = get_all_loans(&mut connection);
-
+    let loans = get_loan_applications_by_lender_id(&mut connection, 3);
     for loan in loans {
         println!("{:?}", loan);
-    }
-
-    let loan = get_loans_by_lender_id(&mut connection, 1);
-    println!("{:?}", loan);
-
-    match get_a_user_by_id(&mut connection, 3) {
-        Some(user) => println!("{:?}", user),
-        None => println!("none"),
     }
 }

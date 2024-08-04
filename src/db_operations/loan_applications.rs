@@ -24,33 +24,29 @@ pub fn get_all_loan_applications(connection: &mut PgConnection) -> Vec<LoanAppli
 pub fn get_loan_applications_by_lender_id(
     connection: &mut PgConnection,
     user_id: i32,
-) -> Option<Vec<LoanApplication>> {
+) -> Vec<LoanApplication> {
     use crate::schema::loan_applications::dsl::*;
+    use crate::schema::loans::dsl::*;
 
-    let mut all_loan_applications: Vec<LoanApplication> = Vec::new();
-
-    let results = loan_applications::table
-        .inner_join(loans::table.on(loan_applications::loan_id.eq(loans::id)))
-        .filter(loans::lender_id.eq(user_id))
-        .select(loan_applications::all_columns)
+    let results = loan_applications
+        .inner_join(loans)
+        .filter(lender_id.eq(user_id))
+        .select(crate::schema::loan_applications::all_columns)
         .load::<LoanApplication>(connection);
 
     match results {
-        Ok(data) => {
-            for loan_app in data.into_iter() {
-                all_loan_applications.push(loan_app)
-            }
+        Ok(data) => data,
+        Err(e) => {
+            eprintln!("Error occurred: {:?}", e);
+            Vec::new()
         }
-        Err(e) => println!("Error occured {:?}", e),
     }
-
-    return all_loan_applications;
 }
 
 pub fn get_loan_applications_by_borrower_id(
     connection: &mut PgConnection,
     user_id: i32,
-) -> Option<Vec<LoanApplication>> {
+) -> Vec<LoanApplication> {
     use crate::schema::loan_applications::dsl::*;
 
     let mut all_loan_applications: Vec<LoanApplication> = Vec::new();
