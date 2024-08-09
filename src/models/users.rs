@@ -5,6 +5,7 @@ use diesel::prelude::*;
 use diesel::serialize::{self, IsNull, Output, ToSql};
 use serde::{Deserialize, Serialize};
 use std::io::Write;
+use std::str::FromStr;
 
 use crate::schema;
 
@@ -14,6 +15,19 @@ pub enum UserType {
     BORROWER,
     LENDER,
     ADMIN,
+}
+
+impl FromStr for UserType {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "BORROWER" => Ok(UserType::BORROWER),
+            "LENDER" => Ok(UserType::LENDER),
+            "ADMIN" => Ok(UserType::ADMIN),
+            _ => Err(format!("'{}' is not a valid UserType", s)),
+        }
+    }
 }
 
 impl ToSql<crate::schema::sql_types::UserTypeEnum, Pg> for UserType {
@@ -62,4 +76,19 @@ pub struct NewUser {
     pub email: String,
     pub password: String,
     pub user_type: UserType,
+}
+
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct LoginForm {
+    pub email: String,
+    pub password: String,
+}
+#[derive(Deserialize, Serialize, Debug)]
+pub struct RegisterForm {
+    pub first_name: String,
+    pub last_name: String,
+    pub email: String,
+    pub user_type: String,
+    pub password: String,
 }
