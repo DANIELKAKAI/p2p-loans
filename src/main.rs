@@ -5,33 +5,20 @@ mod schema;
 mod controllers;
 
 
-
 use db_operations::db;
-use actix_session::{storage::CookieSessionStore, Session, SessionMiddleware};
-use diesel::prelude::*;
+use actix_session::{storage::CookieSessionStore, SessionMiddleware};
 use dotenvy::dotenv;
-use chrono::Utc;
 use crate::controllers::users::{dashboard_page, login_page, login_user, register_page, register_user};
-use crate::models::users::{User, LoginForm};
-use crate::models::app_state;
 use log::info;
 
 use std::sync::Mutex;
-use actix_session::config::PersistentSession;
 use actix_files as fs;
-use actix_web::{cookie::{time::Duration, Key}, web, App, HttpServer, Responder,  middleware, HttpResponse};
-use askama::Template;
+use actix_web::{cookie::Key, web, App, HttpServer};
 use crate::models::app_state::AppState;
 
-use actix_web::{Error, dev::ServiceRequest, dev::ServiceResponse, HttpMessage};
 use crate::controllers::dashboard::{protected, unprotected};
 use crate::controllers::home::default_handler;
-use crate::models::ui::LoginTemplate;
 use actix_web::cookie::SameSite;
-
-const ONE_MINUTE: Duration = Duration::minutes(1);
-
-
 
 
 #[actix_web::main]
@@ -49,7 +36,6 @@ async fn main() -> std::io::Result<()> {
         // Initialize application state
         let app_state = web::Data::new(AppState { db_connection: Mutex::new(db::establish_connection())  });
         // todo improve above to use a  pool not a single connection
-
 
         App::new()
             .app_data(app_state.clone())
