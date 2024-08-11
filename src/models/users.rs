@@ -3,6 +3,7 @@ use diesel::expression::AsExpression;
 use diesel::pg::{Pg, PgValue};
 use diesel::prelude::*;
 use diesel::serialize::{self, IsNull, Output, ToSql};
+use diesel::Identifiable;
 use serde::{Deserialize, Serialize};
 use std::io::Write;
 use std::str::FromStr;
@@ -27,6 +28,16 @@ impl FromStr for UserType {
             "LENDER" => Ok(UserType::LENDER),
             "ADMIN" => Ok(UserType::ADMIN),
             _ => Err(format!("'{}' is not a valid UserType", s)),
+        }
+    }
+}
+
+impl UserType {
+    pub fn as_str(&self) -> &str {
+        match self {
+            UserType::BORROWER => "BORROWER",
+            UserType::LENDER => "LENDER",
+            UserType::ADMIN => "ADMIN",
         }
     }
 }
@@ -64,7 +75,7 @@ impl fmt::Display for UserType {
     }
 }
 
-#[derive(Queryable, Selectable, Debug, Serialize, Deserialize)]
+#[derive(Queryable, Selectable, Identifiable, Debug, Serialize, Deserialize)]
 #[diesel(table_name = schema::users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct User {
@@ -77,6 +88,13 @@ pub struct User {
     pub updated_at: chrono::NaiveDateTime,
     pub created_at: chrono::NaiveDateTime,
     pub user_type: UserType,
+}
+
+impl Identifiable for User {
+    type Id = i32;
+    fn id(self) -> i32 {
+        self.id
+    }
 }
 
 #[derive(Queryable, Selectable, Debug, Insertable, Serialize, Deserialize)]

@@ -1,16 +1,18 @@
-use actix_session::Session;
-use actix_web::{web, HttpResponse, HttpRequest};
-use crate::models::loans::{NewLoan, AddLoanForm};
-use crate::db_operations::users::{get_a_user_by_id};
 use crate::db_operations::loans::insert_loan;
+use crate::db_operations::users::get_a_user_by_id;
 use crate::models::app_state::AppState;
+use crate::models::loans::{AddLoanForm, NewLoan};
 use crate::models::ui::AddLoanTemplate;
+use actix_session::Session;
+use actix_web::{web, HttpRequest, HttpResponse};
 use askama::Template;
-use log::{error, info, debug};
+use log::{debug, error, info};
 
-
-
-pub async fn add_loan_page(state: web::Data<AppState>, session: Session, req: HttpRequest) -> Result<HttpResponse, actix_web::Error> {
+pub async fn add_loan_page(
+    state: web::Data<AppState>,
+    session: Session,
+    req: HttpRequest,
+) -> Result<HttpResponse, actix_web::Error> {
     debug!("Attempting to retrieve user_id from session");
 
     let result = match session.get::<i32>("user_id") {
@@ -22,20 +24,20 @@ pub async fn add_loan_page(state: web::Data<AppState>, session: Session, req: Ht
             // context
             let user = get_a_user_by_id(&mut connection_guard, user_id).unwrap();
 
-            let add_loan_template = AddLoanTemplate {
-                user
-            };
-            Ok(HttpResponse::Ok().content_type("text/html").body(add_loan_template.render().map_err(|e| {
-                error!("Template rendering error: {:?}", e);
-                actix_web::error::ErrorInternalServerError("Template error")
-            })?))
-        },
+            let add_loan_template = AddLoanTemplate { user };
+            Ok(HttpResponse::Ok().content_type("text/html").body(
+                add_loan_template.render().map_err(|e| {
+                    error!("Template rendering error: {:?}", e);
+                    actix_web::error::ErrorInternalServerError("Template error")
+                })?,
+            ))
+        }
         Ok(None) => {
             info!("No user_id found in session");
             Ok(HttpResponse::Found()
                 .append_header((actix_web::http::header::LOCATION, "/login"))
                 .finish())
-        },
+        }
         Err(e) => {
             error!("Session error: {:?}", e);
             Err(actix_web::error::ErrorInternalServerError("Session error"))
@@ -47,7 +49,6 @@ pub async fn add_loan_page(state: web::Data<AppState>, session: Session, req: Ht
         e
     })
 }
-
 
 pub async fn add_loan(
     form: web::Form<AddLoanForm>,
@@ -76,8 +77,8 @@ pub async fn add_loan(
 
     let new_loan = NewLoan {
         loan_name: form.loan_name.clone(),
-        loan_amount: form.loan_amount.clone(), 
-        interest_rate: form.interest_rate.clone(), 
+        loan_amount: form.loan_amount.clone(),
+        interest_rate: form.interest_rate.clone(),
         repayment_period: form.repayment_period.clone(),
         lender_id: user_id,
     };
@@ -91,7 +92,9 @@ pub async fn add_loan(
         }
         Err(e) => {
             println!("Error occurred: {:?}", e);
-            Err(actix_web::error::ErrorInternalServerError("Error adding loan"))
+            Err(actix_web::error::ErrorInternalServerError(
+                "Error adding loan",
+            ))
         }
     }
 }

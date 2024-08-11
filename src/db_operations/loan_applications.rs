@@ -1,4 +1,6 @@
-use crate::models::loan_applications::{LoanApplication, NewLoanApplication};
+use crate::models::loan_applications::{
+    LoanApplication, LoanApplicationWithBorrower, LoanApplicationWithLender, NewLoanApplication,
+};
 use diesel::prelude::*;
 
 pub fn get_all_loan_applications(connection: &mut PgConnection) -> Vec<LoanApplication> {
@@ -24,15 +26,16 @@ pub fn get_all_loan_applications(connection: &mut PgConnection) -> Vec<LoanAppli
 pub fn get_loan_applications_by_lender_id(
     connection: &mut PgConnection,
     user_id: i32,
-) -> Vec<LoanApplication> {
+) -> Vec<LoanApplicationWithBorrower> {
     use crate::schema::loan_applications::dsl::*;
     use crate::schema::loans::dsl::*;
+    use crate::schema::users::dsl::*;
 
     let results = loan_applications
+        .inner_join(users)
         .inner_join(loans)
         .filter(lender_id.eq(user_id))
-        .select(crate::schema::loan_applications::all_columns)
-        .load::<LoanApplication>(connection);
+        .load::<LoanApplicationWithBorrower>(connection);
 
     match results {
         Ok(data) => data,
@@ -46,26 +49,24 @@ pub fn get_loan_applications_by_lender_id(
 pub fn get_loan_applications_by_borrower_id(
     connection: &mut PgConnection,
     user_id: i32,
-) -> Vec<LoanApplication> {
+) -> Vec<LoanApplicationWithLender> {
     use crate::schema::loan_applications::dsl::*;
-
-    let mut all_loan_applications: Vec<LoanApplication> = Vec::new();
+    use crate::schema::loans::dsl::*;
+    use crate::schema::users::dsl::{users, id as user_id_field};
 
     let results = loan_applications
         .filter(borrower_id.eq(user_id))
-        .select(crate::schema::loan_applications::all_columns)
-        .load(connection);
+        .inner_join(loans)
+        .inner_join(users.on(user_id_field.eq(lender_id)))
+        .load::<LoanApplicationWithLender>(connection);
 
     match results {
-        Ok(data) => {
-            for loan_app in data.into_iter() {
-                all_loan_applications.push(loan_app)
-            }
+        Ok(data) => data,
+        Err(e) => {
+            eprintln!("Error occurred: {:?}", e);
+            Vec::new()
         }
-        Err(e) => println!("Error occured {:?}", e),
     }
-
-    return all_loan_applications;
 }
 
 pub fn add_loan_application(

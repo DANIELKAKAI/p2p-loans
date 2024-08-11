@@ -4,6 +4,7 @@ mod models;
 mod schema;
 
 use crate::controllers::loans::{add_loan_page, add_loan};
+use crate::controllers::loan_applications::{lended_loans_page, applied_loans_page};
 use crate::controllers::users::{
     dashboard_page, login_page, login_user, register_page, register_user,
 };
@@ -59,6 +60,8 @@ async fn main() -> std::io::Result<()> {
             .route("/dashboard", web::get().to(dashboard_page))
             .route("/add-loan", web::get().to(add_loan_page))
             .route("/add-loan", web::post().to(add_loan))
+            .route("/lended-loans", web::get().to(lended_loans_page))
+            .route("/applied-loans", web::get().to(applied_loans_page))
             .route("/login", web::get().to(login_page))
             .route("/login", web::post().to(login_user))
             .route("/register", web::get().to(register_page))

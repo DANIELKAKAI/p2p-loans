@@ -3,6 +3,7 @@ use askama::Template;
 
 use crate::models::users::{User};
 use crate::models::loans::{Loan};
+use crate::models::loan_applications::{LoanApplicationWithBorrower, LoanApplicationWithLender};
 
 #[derive(Template)]
 #[template(path = "login.html")]
@@ -28,6 +29,20 @@ pub struct DashboardTemplate {
 #[template(path = "add-loan.html")]
 pub struct AddLoanTemplate{
     pub user: User,
+}
+
+#[derive(Template)]
+#[template(path = "lended-loans.html")]
+pub struct LendedLoansTemplate {
+    pub user: User,
+    pub lended_loans: Vec<LoanApplicationWithBorrower>
+}
+
+#[derive(Template)]
+#[template(path = "applied-loans.html")]
+pub struct AppliedLoansTemplate {
+    pub user: User,
+    pub applied_loans: Vec<LoanApplicationWithLender>
 }
 
 #[derive(Template)]
