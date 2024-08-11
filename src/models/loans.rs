@@ -2,6 +2,8 @@ use crate::schema;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 
+use super::users::User;
+
 #[derive(Queryable, Selectable, Debug, Serialize, Deserialize)]
 #[diesel(table_name = schema::loans)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
@@ -33,4 +35,10 @@ pub struct AddLoanForm {
     pub loan_amount: f64,
     pub interest_rate: f64,
     pub repayment_period: i32,
+}
+
+#[derive(Queryable, Debug, Serialize, Deserialize)]
+pub struct FullLoan {
+    pub loan:Loan,
+    pub lender: User,
 }

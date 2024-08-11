@@ -1,7 +1,7 @@
 use crate::db_operations::loans::{get_all_loans, get_loans_by_lender_id};
 use crate::db_operations::users::{add_user, get_a_user_by_id, get_a_user_by_mail};
 use crate::models::app_state::AppState;
-use crate::models::loans::Loan;
+use crate::models::loans::FullLoan;
 use crate::models::ui::{DashboardTemplate, LoginTemplate, RegisterTemplate};
 use crate::models::users::{LoginForm, NewUser, RegisterForm, User, UserType};
 use actix_session::Session;
@@ -48,7 +48,7 @@ pub async fn login_page(error: Option<String>, message: Option<String>) -> impl 
 pub async fn dashboard_page(
     state: web::Data<AppState>,
     session: Session,
-    req: HttpRequest,
+    _req: HttpRequest,
 ) -> Result<HttpResponse, actix_web::Error> {
     debug!("Attempting to retrieve user_id from session");
 
@@ -59,7 +59,7 @@ pub async fn dashboard_page(
             let mut connection_guard = state.db_connection.lock().unwrap();
 
             // context
-            let mut loans: Vec<Loan> = Vec::new();
+            let mut loans: Vec<FullLoan> = Vec::new();
             let user = get_a_user_by_id(&mut connection_guard, user_id).unwrap();
 
             if user.user_type.as_str() == "LENDER" {
@@ -200,4 +200,11 @@ pub async fn register_user(
 async fn update_user(item: web::Json<User>, state: web::Data<AppState>) -> impl Responder {
     log::info!("to implment");
     HttpResponse::Ok().finish()
+}
+
+pub async fn logout_user(session: Session) -> Result<HttpResponse, actix_web::Error> {
+    session.purge();
+    Ok(HttpResponse::Found()
+        .append_header((actix_web::http::header::LOCATION, "/login"))
+        .finish())
 }

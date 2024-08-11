@@ -1,11 +1,36 @@
-use crate::models::loans::{Loan, NewLoan};
+use crate::models::loans::{FullLoan, Loan, NewLoan};
 use diesel::prelude::*;
 
-pub fn get_all_loans(connection: &mut PgConnection) -> Vec<Loan> {
-    use crate::schema::loans::dsl::*;
+pub fn get_all_loans(connection: &mut PgConnection) -> Vec<FullLoan> {
+    use crate::schema::loans::dsl::{created_at as loan_date, loans};
+    use crate::schema::users::dsl::*;
 
-    let mut all_loans: Vec<Loan> = Vec::new();
-    let results = loans.select(Loan::as_select()).load(connection);
+    let results = loans
+        .inner_join(users)
+        .order(loan_date.desc())
+        .load::<FullLoan>(connection);
+
+    match results {
+        Ok(data) => data,
+        Err(e) => {
+            eprintln!("Error occurred: {:?}", e);
+            Vec::new()
+        }
+    }
+}
+
+pub fn get_loans_by_lender_id(connection: &mut PgConnection, user_id: i32) -> Vec<FullLoan> {
+    use crate::schema::loans::dsl::{created_at as loan_date, lender_id, loans};
+    use crate::schema::users::dsl::*;
+
+    let mut all_loans: Vec<FullLoan> = Vec::new();
+
+    let results = loans
+        .inner_join(users)
+        .filter(lender_id.eq(user_id))
+        .order(loan_date.desc())
+        .load(connection);
+
     match results {
         Ok(data) => {
             for loan in data.into_iter() {
@@ -18,23 +43,17 @@ pub fn get_all_loans(connection: &mut PgConnection) -> Vec<Loan> {
     return all_loans;
 }
 
-pub fn get_loans_by_lender_id(connection: &mut PgConnection, user_id: i32) -> Vec<Loan> {
+pub fn get_loan_by_id(connection: &mut PgConnection, loan_id: i32) -> Option<Loan> {
     use crate::schema::loans::dsl::*;
 
-    let mut all_loans: Vec<Loan> = Vec::new();
-
-    let results = loans.filter(lender_id.eq(user_id)).load(connection);
-
-    match results {
-        Ok(data) => {
-            for loan in data.into_iter() {
-                all_loans.push(loan)
-            }
-        }
-        Err(e) => println!("Error occured {:?}", e),
-    }
-
-    return all_loans;
+    loans
+        .filter(id.eq(loan_id))
+        .first::<Loan>(connection)
+        .optional() // This will convert the result to Option
+        .unwrap_or_else(|err| {
+            println!("Error occurred: {:?}", err);
+            None
+        })
 }
 
 pub fn insert_loan(

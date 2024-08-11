@@ -27,7 +27,7 @@ pub fn get_loan_applications_by_lender_id(
     connection: &mut PgConnection,
     user_id: i32,
 ) -> Vec<LoanApplicationWithBorrower> {
-    use crate::schema::loan_applications::dsl::*;
+    use crate::schema::loan_applications::dsl::{created_at as loan_app_date, loan_applications};
     use crate::schema::loans::dsl::*;
     use crate::schema::users::dsl::*;
 
@@ -35,6 +35,7 @@ pub fn get_loan_applications_by_lender_id(
         .inner_join(users)
         .inner_join(loans)
         .filter(lender_id.eq(user_id))
+        .order(loan_app_date.desc())
         .load::<LoanApplicationWithBorrower>(connection);
 
     match results {
@@ -50,14 +51,17 @@ pub fn get_loan_applications_by_borrower_id(
     connection: &mut PgConnection,
     user_id: i32,
 ) -> Vec<LoanApplicationWithLender> {
-    use crate::schema::loan_applications::dsl::*;
+    use crate::schema::loan_applications::dsl::{
+        borrower_id, created_at as loan_app_date, loan_applications,
+    };
     use crate::schema::loans::dsl::*;
-    use crate::schema::users::dsl::{users, id as user_id_field};
+    use crate::schema::users::dsl::{id as user_id_field, users};
 
     let results = loan_applications
         .filter(borrower_id.eq(user_id))
         .inner_join(loans)
         .inner_join(users.on(user_id_field.eq(lender_id)))
+        .order(loan_app_date.desc())
         .load::<LoanApplicationWithLender>(connection);
 
     match results {

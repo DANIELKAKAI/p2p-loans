@@ -31,7 +31,7 @@
             <div class="card info-card revenue-card">
               <div class="card-body">
                 <h5 class="card-title">
-                  {{ loan.loan_name }} <span>| By {{ user.first_name }} {{ user.last_name }}</span>
+                  {{ loan.loan.loan_name }} <span>| By {{ loan.lender.first_name }} {{ loan.lender.last_name }}</span>
                 </h5>
 
                 <div class="d-flex align-items-center">
@@ -39,14 +39,19 @@
                     <i class="bi bi-currency-dollar"></i>
                   </div>
                   <div class="ps-3">
-                    <h6>{{loan.loan_amount}}</h6>
-                    <span class="text-success small pt-1 fw-bold">{{ loan.interest_rate }}%</span>
+                    <h6>{{loan.loan.loan_amount}}</h6>
+                    <span class="text-success small pt-1 fw-bold">{{ loan.loan.interest_rate }}%</span>
                     <span class="text-muted small pt-2 ps-1">interest</span>
                     <br>
-                    <span class="text-primary small pt-1 fw-bold">{{ loan.repayment_period }}</span>
+                    <span class="text-primary small pt-1 fw-bold">{{ loan.loan.repayment_period }}</span>
                     <span class="text-muted small pt-2 ps-1">months</span>
                   </div>
                 </div>
+                {% if user.user_type.as_str() == "BORROWER" %}
+                <div class="d-flex align-items-center mt-3">
+                  <a class="btn btn-primary" href="/apply-loan/{{loan.loan.id}}">Apply Loan</a>
+                </div>
+                {% endif %}
               </div>
             </div>
           </div>

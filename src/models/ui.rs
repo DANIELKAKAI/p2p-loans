@@ -2,7 +2,7 @@
 use askama::Template;
 
 use crate::models::users::{User};
-use crate::models::loans::{Loan};
+use crate::models::loans::{FullLoan};
 use crate::models::loan_applications::{LoanApplicationWithBorrower, LoanApplicationWithLender};
 
 #[derive(Template)]
@@ -22,7 +22,7 @@ pub struct RegisterTemplate{
 #[template(path = "dashboard.html")]
 pub struct DashboardTemplate {
     pub user: User,
-    pub loans: Vec<Loan>
+    pub loans: Vec<FullLoan>
 }
 
 #[derive(Template)]
