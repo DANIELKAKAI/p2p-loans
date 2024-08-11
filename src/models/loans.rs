@@ -26,3 +26,11 @@ pub struct NewLoan {
     pub repayment_period: i32,
     pub lender_id: i32,
 }
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct AddLoanForm {
+    pub loan_name: String,
+    pub loan_amount: f64,
+    pub interest_rate: f64,
+    pub repayment_period: i32,
+}

@@ -79,7 +79,7 @@
                 class="rounded-circle"
               />
               <span class="d-none d-md-block dropdown-toggle ps-2"
-                >K. Anderson</span
+                >{{user.first_name}} {{user.last_name}}</span
               > </a
             ><!-- End Profile Iamge Icon -->
 
@@ -87,8 +87,10 @@
               class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile"
             >
               <li class="dropdown-header">
-                <h6>Kevin Anderson</h6>
-                <span>Web Designer</span>
+                <span>{{ user.email }}</span>
+              </li>
+              <li class="dropdown-header">
+                <span>{{ user.user_type }}</span>
               </li>
               <li>
                 <hr class="dropdown-divider" />
@@ -155,13 +157,19 @@
         <div class="row">
           <!-- Left side columns -->
           <div class="col-lg-12">
+            <div class="row mb-3">
+              <div class="col-6">
+              <a class="btn btn-primary" href="/add-loan">Add Loan</a>
+            </div>
+            </div>
             <div class="row">
+              {% for loan in loans %}
               <!-- Revenue Card -->
               <div class="col-xxl-4 col-md-4">
                 <div class="card info-card revenue-card">
                   <div class="card-body">
                     <h5 class="card-title">
-                      Revenue <span>| By Dan Kakai</span>
+                      {{ loan.loan_name }} <span>| By {{ user.first_name }} {{ user.last_name }}</span>
                     </h5>
 
                     <div class="d-flex align-items-center">
@@ -171,11 +179,11 @@
                         <i class="bi bi-currency-dollar"></i>
                       </div>
                       <div class="ps-3">
-                        <h6>$3,264</h6>
-                        <span class="text-success small pt-1 fw-bold">8%</span>
+                        <h6>{{loan.loan_amount}}</h6>
+                        <span class="text-success small pt-1 fw-bold">{{ loan.interest_rate }}%</span>
                         <span class="text-muted small pt-2 ps-1">interest</span>
                         <br>
-                        <span class="text-primary small pt-1 fw-bold">24</span>
+                        <span class="text-primary small pt-1 fw-bold">{{ loan.repayment_period }}</span>
                         <span class="text-muted small pt-2 ps-1">months</span>
                       </div>
                     </div>
@@ -183,7 +191,10 @@
                 </div>
               </div>
               <!-- End Revenue Card -->
+               {% endfor %}
+              </div>
 
+              <div class="row">
               <!-- Recent Sales -->
               <div class="col-12">
                 <div class="card recent-sales overflow-auto">
@@ -287,6 +298,7 @@
                 </div>
               </div>
               <!-- End Recent Sales -->
+            </div>
             </div>
           </div>
           <!-- End Left side columns -->

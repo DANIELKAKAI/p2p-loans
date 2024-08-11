@@ -1,25 +1,26 @@
-
+mod controllers;
 mod db_operations;
 mod models;
 mod schema;
-mod controllers;
 
-
-use db_operations::db;
+use crate::controllers::loans::{add_loan_page, add_loan};
+use crate::controllers::users::{
+    dashboard_page, login_page, login_user, register_page, register_user,
+};
 use actix_session::{storage::CookieSessionStore, SessionMiddleware};
+use db_operations::db;
 use dotenvy::dotenv;
-use crate::controllers::users::{dashboard_page, login_page, login_user, register_page, register_user};
 use log::info;
+use std::env;
 
-use std::sync::Mutex;
+use crate::models::app_state::AppState;
 use actix_files as fs;
 use actix_web::{cookie::Key, web, App, HttpServer};
-use crate::models::app_state::AppState;
+use std::sync::Mutex;
 
 use crate::controllers::dashboard::{protected, unprotected};
 use crate::controllers::home::default_handler;
 use actix_web::cookie::SameSite;
-
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -27,14 +28,18 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
-
     info!("starting HTTP server at http://localhost:8080");
 
     let secret_key = Key::generate();
 
+    let static_file_folder =
+        env::var("STATIC_FILE_FOLDER").expect("STATIC_FILE_FOLDER must be set");
+
     HttpServer::new(move || {
         // Initialize application state
-        let app_state = web::Data::new(AppState { db_connection: Mutex::new(db::establish_connection())  });
+        let app_state = web::Data::new(AppState {
+            db_connection: Mutex::new(db::establish_connection()),
+        });
         // todo improve above to use a  pool not a single connection
 
         App::new()
@@ -44,14 +49,16 @@ async fn main() -> std::io::Result<()> {
                     .cookie_secure(false) // set to true if using HTTPS
                     .cookie_http_only(true)
                     .cookie_same_site(SameSite::Lax)
-                    .build()
+                    .build(),
             )
             .service(
-                fs::Files::new("/static", "./static")
+                fs::Files::new("/static", &static_file_folder)
                     .show_files_listing()
-                    .use_last_modified(true)
+                    .use_last_modified(true),
             )
             .route("/dashboard", web::get().to(dashboard_page))
+            .route("/add-loan", web::get().to(add_loan_page))
+            .route("/add-loan", web::post().to(add_loan))
             .route("/login", web::get().to(login_page))
             .route("/login", web::post().to(login_user))
             .route("/register", web::get().to(register_page))
@@ -60,7 +67,7 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/unprotected").route(web::get().to(unprotected)))
             .default_service(web::to(default_handler))
     })
-        .bind("127.0.0.1:8080")?
-        .run()
-        .await
+    .bind("127.0.0.1:8080")?
+    .run()
+    .await
 }

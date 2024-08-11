@@ -6,6 +6,7 @@ use diesel::serialize::{self, IsNull, Output, ToSql};
 use serde::{Deserialize, Serialize};
 use std::io::Write;
 use std::str::FromStr;
+use std::fmt;
 
 use crate::schema;
 
@@ -49,6 +50,17 @@ impl FromSql<crate::schema::sql_types::UserTypeEnum, Pg> for UserType {
             b"ADMIN" => Ok(UserType::ADMIN),
             _ => Err("Unrecognized enum variant".into()),
         }
+    }
+}
+
+impl fmt::Display for UserType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let user_type_str = match self {
+            UserType::BORROWER => "BORROWER",
+            UserType::LENDER => "LENDER",
+            UserType::ADMIN => "ADMIN",
+        };
+        write!(f, "{}", user_type_str)
     }
 }
 

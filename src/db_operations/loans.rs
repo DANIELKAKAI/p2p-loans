@@ -37,7 +37,7 @@ pub fn get_loans_by_lender_id(connection: &mut PgConnection, user_id: i32) -> Ve
     return all_loans;
 }
 
-pub fn add_loan(
+pub fn insert_loan(
     new_loan: NewLoan,
     connection: &mut PgConnection,
 ) -> Result<Loan, diesel::result::Error> {

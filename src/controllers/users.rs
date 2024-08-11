@@ -2,9 +2,10 @@ use std::str::FromStr;
 use actix_session::Session;
 use actix_web::{web, Responder, HttpResponse, HttpRequest};
 use crate::models::users::{NewUser, User,UserType, LoginForm, RegisterForm};
-use crate::db_operations::users::{add_user, get_a_user_by_mail};
+use crate::db_operations::users::{add_user, get_a_user_by_mail, get_a_user_by_id};
+use crate::db_operations::loans::{get_loans_by_lender_id};
 use crate::models::app_state::AppState;
-use crate::models::ui::{LoginTemplate, DashboardTemplate, RegisterTemplate};
+use crate::models::ui::{LoginTemplate, DashboardTemplate, RegisterTemplate, AddLoanTemplate};
 use bcrypt::{hash, DEFAULT_COST, verify};
 use askama::Template;
 use log::{error, info, debug};
@@ -35,11 +36,19 @@ pub async fn login_page(error: Option<String>, message: Option<String>) -> impl 
 pub async fn dashboard_page(state: web::Data<AppState>, session: Session, req: HttpRequest) -> Result<HttpResponse, actix_web::Error> {
     debug!("Attempting to retrieve user_id from session");
 
-    let result = match session.get::<String>("email") {
-        Ok(Some(email)) => {
-            info!("email found in session: {}", email);
+    let result = match session.get::<i32>("user_id") {
+        Ok(Some(user_id)) => {
+            info!("user id found in session: {}", user_id);
+
+            let mut connection_guard = state.db_connection.lock().unwrap();
+
+            // context
+            let user = get_a_user_by_id(&mut connection_guard, user_id).unwrap();
+            let loans = get_loans_by_lender_id(&mut connection_guard, user.id);
+
             let dashboard_template = DashboardTemplate {
-                email: email,
+                user,
+                loans
             };
             Ok(HttpResponse::Ok().content_type("text/html").body(dashboard_template.render().map_err(|e| {
                 error!("Template rendering error: {:?}", e);
@@ -64,6 +73,8 @@ pub async fn dashboard_page(state: web::Data<AppState>, session: Session, req: H
     })
 }
 
+
+
 pub async fn login_user(form: web::Form<LoginForm>, state: web::Data<AppState>, session: Session) -> Result<HttpResponse, actix_web::Error> {
     let mut connection_guard = state.db_connection.lock().unwrap();
 
@@ -71,7 +82,7 @@ pub async fn login_user(form: web::Form<LoginForm>, state: web::Data<AppState>, 
     match user_exist {
         Some(user) => {
             if verify(&form.password, &user.password).unwrap_or(false) {
-                session.insert("email", form.email.clone())?;
+                session.insert("user_id", user.id)?;
                 // Redirect to the dashboard route
                 Ok(HttpResponse::Found()
                     .append_header((actix_web::http::header::LOCATION, "/dashboard"))

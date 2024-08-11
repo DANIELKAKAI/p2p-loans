@@ -1,6 +1,9 @@
 
 use askama::Template;
 
+use crate::models::users::{User};
+use crate::models::loans::{Loan};
+
 #[derive(Template)]
 #[template(path = "login.html")]
 pub struct LoginTemplate{
@@ -15,11 +18,18 @@ pub struct RegisterTemplate{
 }
 
 #[derive(Template)]
-#[template(path = "index.html")]
+#[template(path = "dashboard.html")]
 pub struct DashboardTemplate {
-    pub(crate) email: String,
+    pub user: User,
+    pub loans: Vec<Loan>
 }
 
 #[derive(Template)]
-#[template(path = "index.html")]
+#[template(path = "add-loan.html")]
+pub struct AddLoanTemplate{
+    pub user: User,
+}
+
+#[derive(Template)]
+#[template(path = "home.html")]
 pub struct HomeTemplate;
