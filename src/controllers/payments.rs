@@ -1,5 +1,5 @@
-use crate::db_operations::payments::insert_payment;
 use crate::db_operations::loans::update_loan_deposit;
+use crate::db_operations::payments::insert_payment;
 use crate::models::app_state::AppState;
 use crate::models::payments::{NewPayment, PaymentCallbackForm};
 use actix_session::Session;
@@ -36,7 +36,9 @@ pub async fn payment_callback(
     }
 
     match update_loan_deposit(query.orderReference, true, &mut connection_guard) {
-        Ok(_) => {},
+        Ok(_) => {
+            println!("Successfully updated loan status");
+        }
         Err(e) => {
             println!("Error occurred: {:?}", e);
             return Err(actix_web::error::ErrorInternalServerError(
@@ -46,6 +48,6 @@ pub async fn payment_callback(
     }
 
     Ok(HttpResponse::Found()
-            .append_header((actix_web::http::header::LOCATION, "/dashboard"))
-            .finish())
+        .append_header((actix_web::http::header::LOCATION, "/dashboard"))
+        .finish())
 }
