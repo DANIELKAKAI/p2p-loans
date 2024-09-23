@@ -16,6 +16,7 @@ pub struct Loan {
     pub repayment_period: i32,
     pub updated_at: chrono::NaiveDateTime,
     pub created_at: chrono::NaiveDateTime,
+    pub amount_deposited: Option<bool>,
 }
 
 #[derive(Queryable, Selectable, Debug, Insertable, Serialize, Deserialize)]

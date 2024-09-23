@@ -8,6 +8,7 @@ use crate::controllers::loans::{add_loan, add_loan_page};
 use crate::controllers::users::{
     dashboard_page, login_page, login_user, logout_user, register_page, register_user,
 };
+use crate::controllers::payments::payment_callback;
 use actix_session::{storage::CookieSessionStore, SessionMiddleware};
 use db_operations::db;
 use dotenvy::dotenv;
@@ -63,6 +64,7 @@ async fn main() -> std::io::Result<()> {
             .route("/apply-loan/{loan_id}", web::get().to(apply_loan))
             .route("/lended-loans", web::get().to(lended_loans_page))
             .route("/applied-loans", web::get().to(applied_loans_page))
+            .route("/payment-callback", web::get().to(payment_callback))
             .route("/login", web::get().to(login_page))
             .route("/login", web::post().to(login_user))
             .route("/register", web::get().to(register_page))

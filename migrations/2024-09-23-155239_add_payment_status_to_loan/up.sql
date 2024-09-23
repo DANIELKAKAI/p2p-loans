@@ -1,0 +1,2 @@
+ALTER TABLE loans
+ADD COLUMN amount_deposited BOOLEAN DEFAULT TRUE;

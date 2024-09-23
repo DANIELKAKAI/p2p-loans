@@ -1,4 +1,4 @@
-use crate::models::loans::{FullLoan, Loan, NewLoan};
+use crate::{models::loans::{FullLoan, Loan, NewLoan}, schema::loans::amount_deposited};
 use diesel::prelude::*;
 
 pub fn get_all_loans(connection: &mut PgConnection) -> Vec<FullLoan> {
@@ -62,5 +62,17 @@ pub fn insert_loan(
 ) -> Result<Loan, diesel::result::Error> {
     diesel::insert_into(crate::schema::loans::table)
         .values(&new_loan)
+        .get_result::<Loan>(connection)
+}
+
+pub fn update_loan_deposit(
+    loan_id: i32,         
+    value: bool, 
+    connection: &mut PgConnection,
+) -> Result<Loan, diesel::result::Error> {
+    diesel::update(crate::schema::loans::table.find(loan_id))
+        .set(
+            crate::schema::loans::amount_deposited.eq(value),
+        )
         .get_result::<Loan>(connection)
 }

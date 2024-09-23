@@ -27,6 +27,18 @@ diesel::table! {
         repayment_period -> Int4,
         updated_at -> Timestamp,
         created_at -> Timestamp,
+        amount_deposited -> Nullable<Bool>,
+    }
+}
+
+diesel::table! {
+    payment (id) {
+        id -> Int4,
+        payment_code -> Varchar,
+        amount -> Float8,
+        loan_id -> Int4,
+        updated_at -> Timestamp,
+        created_at -> Timestamp,
     }
 }
 
@@ -54,9 +66,11 @@ diesel::table! {
 diesel::joinable!(loan_applications -> loans (loan_id));
 diesel::joinable!(loan_applications -> users (borrower_id));
 diesel::joinable!(loans -> users (lender_id));
+diesel::joinable!(payment -> loans (loan_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     loan_applications,
     loans,
+    payment,
     users,
 );

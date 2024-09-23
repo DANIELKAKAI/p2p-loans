@@ -5,9 +5,9 @@ use diesel::prelude::*;
 use diesel::serialize::{self, IsNull, Output, ToSql};
 use diesel::Identifiable;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 use std::io::Write;
 use std::str::FromStr;
-use std::fmt;
 
 use crate::schema;
 
@@ -107,7 +107,6 @@ pub struct NewUser {
     pub password: String,
     pub user_type: UserType,
 }
-
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct LoginForm {
