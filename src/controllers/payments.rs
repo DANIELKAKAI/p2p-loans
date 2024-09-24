@@ -1,5 +1,5 @@
-use crate::db_operations::loans::update_loan_deposit;
-use crate::db_operations::payments::insert_payment;
+use crate::db_operations::loans::{get_loan_by_id, update_loan_deposit};
+use crate::db_operations::payments::{get_total_by_loan_id, insert_payment};
 use crate::models::app_state::AppState;
 use crate::models::payments::{NewPayment, PaymentCallbackForm};
 use actix_session::Session;
@@ -35,15 +35,21 @@ pub async fn payment_callback(
         }
     }
 
-    match update_loan_deposit(query.orderReference, true, &mut connection_guard) {
-        Ok(_) => {
-            println!("Successfully updated loan status");
-        }
-        Err(e) => {
-            println!("Error occurred: {:?}", e);
-            return Err(actix_web::error::ErrorInternalServerError(
-                "Error updating loan",
-            ));
+    if let Some(loan) = get_loan_by_id(&mut connection_guard, query.orderReference) {
+        let total = get_total_by_loan_id(query.orderReference, &mut connection_guard);
+
+        if loan.loan_amount == total {
+            match update_loan_deposit(query.orderReference, true, &mut connection_guard) {
+                Ok(_) => {
+                    println!("Successfully updated loan status");
+                }
+                Err(e) => {
+                    println!("Error occurred: {:?}", e);
+                    return Err(actix_web::error::ErrorInternalServerError(
+                        "Error updating loan",
+                    ));
+                }
+            }
         }
     }
 
