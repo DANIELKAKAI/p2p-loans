@@ -22,7 +22,8 @@ pub fn get_jenga_payment_token() -> Result<String, Box<dyn std::error::Error>> {
         .send()?;
 
     let json_response: HashMap<String, String> = res.json()?;
-    Ok(json_response.get("accessToken").cloned().unwrap_or_default())
+    Ok(json_response
+        .get("accessToken")
+        .cloned()
+        .unwrap_or_default())
 }
-
-
