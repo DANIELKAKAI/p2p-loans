@@ -2,8 +2,9 @@
 use askama::Template;
 
 use crate::models::users::{User};
-use crate::models::loans::{FullLoan};
+use crate::models::loans::{FullLoan, Loan};
 use crate::models::loan_applications::{LoanApplicationWithBorrower, LoanApplicationWithLender};
+use crate::models::payments::PaymentConfig;
 
 #[derive(Template)]
 #[template(path = "login.html")]
@@ -29,6 +30,14 @@ pub struct DashboardTemplate {
 #[template(path = "add-loan.html")]
 pub struct AddLoanTemplate{
     pub user: User,
+}
+
+#[derive(Template)]
+#[template(path = "complete-loan-payment.html")]
+pub struct CompleteLoanPaymentTemplate{
+    pub user: User,
+    pub loan: Loan,
+    pub payment_config: PaymentConfig
 }
 
 #[derive(Template)]

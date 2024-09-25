@@ -26,6 +26,8 @@
         {% endif %}
         <div class="row">
           {% for loan in loans %}
+          {% if user.user_type.as_str() == "BORROWER" && loan.loan.amount_deposited == Some(false) %}
+          {% else %}
           <!-- Revenue Card -->
           <div class="col-xxl-4 col-md-4">
             <div class="card info-card revenue-card">
@@ -45,6 +47,14 @@
                     <br>
                     <span class="text-primary small pt-1 fw-bold">{{ loan.loan.repayment_period }}</span>
                     <span class="text-muted small pt-2 ps-1">months</span>
+                    <br>
+                    {% if user.user_type.as_str() == "LENDER" %}
+                    {% if loan.loan.amount_deposited == Some(true) %}
+                    <span class="text-success small pt-1 fw-bold">ACTIVE</span>
+                    {% else %}
+                    <span class="text-danger small pt-1 fw-bold">INACTIVE</span>
+                    {% endif %}
+                    {% endif %}
                   </div>
                 </div>
                 {% if user.user_type.as_str() == "BORROWER" %}
@@ -56,6 +66,7 @@
             </div>
           </div>
           <!-- End Revenue Card -->
+          {% endif %}
           {% endfor %}
         </div>
       </div>

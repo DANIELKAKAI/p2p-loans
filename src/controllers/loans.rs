@@ -1,12 +1,15 @@
-use crate::db_operations::loans::insert_loan;
+use crate::db_operations::loans::{get_loan_by_id, insert_loan};
 use crate::db_operations::users::get_a_user_by_id;
 use crate::models::app_state::AppState;
 use crate::models::loans::{AddLoanForm, NewLoan};
-use crate::models::ui::AddLoanTemplate;
+use crate::models::payments::PaymentConfig;
+use crate::models::ui::{AddLoanTemplate, CompleteLoanPaymentTemplate};
 use actix_session::Session;
 use actix_web::{web, HttpRequest, HttpResponse};
+use actix_web_lab::extract::Path;
 use askama::Template;
 use log::{debug, error, info};
+use std::env;
 
 pub async fn add_loan_page(
     state: web::Data<AppState>,
@@ -99,3 +102,99 @@ pub async fn add_loan(
     }
 }
 
+pub async fn complete_loan_payment(
+    Path(loan_id): Path<i32>,
+    state: web::Data<AppState>,
+    session: Session,
+    req: HttpRequest,
+) -> Result<HttpResponse, actix_web::Error> {
+    debug!("Attempting to retrieve user_id from session");
+
+    let result = match session.get::<i32>("user_id") {
+        Ok(Some(user_id)) => {
+            info!("email found in session: {}", user_id);
+
+            let mut connection_guard = state.db_connection.lock().unwrap();
+
+            // context
+            let user = get_a_user_by_id(&mut connection_guard, user_id).unwrap();
+            let loan = get_loan_by_id(&mut connection_guard, loan_id).unwrap();
+            let token: String = get_jenga_payment_token().unwrap();
+            let payment_config = PaymentConfig {
+                token: token,
+                merchantCode: env::var("JENGA_MERCHANT_CODE").unwrap_or("".to_string()),
+                orderReference: loan.id.to_string(),
+                productType: String::from("Service"),
+                paymentTimeLimit: env::var("JENGA_PAYMENT_TIME_LIMIT").unwrap_or("".to_string()),
+                callbackUrl: env::var("JENGA_CALLBACK_URL").unwrap_or("".to_string()),
+                countryCode: env::var("JENGA_COUNTRY_CODE").unwrap_or("".to_string()),
+                currency: env::var("JENGA_CURRENCY").unwrap_or("".to_string()),
+                signature: format!(
+                    "{}{}{}{}",
+                    env::var("JENGA_MERCHANT_CODE").unwrap_or("".to_string()),
+                    loan.id.to_string(),
+                    env::var("JENGA_CURRENCY").unwrap_or("".to_string()),
+                    env::var("JENGA_CALLBACK_URL").unwrap_or("".to_string())
+                ),
+            };
+
+            let template = CompleteLoanPaymentTemplate {
+                user,
+                loan,
+                payment_config,
+            };
+            Ok(HttpResponse::Ok()
+                .content_type("text/html")
+                .body(template.render().map_err(|e| {
+                    error!("Template rendering error: {:?}", e);
+                    actix_web::error::ErrorInternalServerError("Template error")
+                })?))
+        }
+        Ok(None) => {
+            info!("No user_id found in session");
+            Ok(HttpResponse::Found()
+                .append_header((actix_web::http::header::LOCATION, "/login"))
+                .finish())
+        }
+        Err(e) => {
+            error!("Session error: {:?}", e);
+            Err(actix_web::error::ErrorInternalServerError("Session error"))
+        }
+    };
+
+    result.map_err(|e| {
+        error!("Unexpected error in dashboard_page: {:?}", e);
+        e
+    })
+}
+
+//helper methods
+use reqwest::blocking::Client;
+use serde_json::json;
+use std::collections::HashMap;
+
+fn get_jenga_payment_token() -> Result<String, Box<dyn std::error::Error>> {
+    let url = std::env::var("JENGA_API_URL")?;
+    let merchant_code = std::env::var("JENGA_MERCHANT_CODE")?;
+    let consumer_secret = std::env::var("JENGA_CONSUMER_SECRET")?;
+    let api_key = std::env::var("JENGA_API_KEY")?;
+
+    let payload = json!({
+        "merchantCode": merchant_code,
+        "consumerSecret": consumer_secret
+    });
+
+    let client = Client::new();
+    let res = client
+        .post(&url)
+        .header("Api-Key", api_key)
+        .header("Content-Type", "application/json")
+        .body(payload.to_string())
+        .send()?;
+
+    let json_response: HashMap<String, String> = res.json()?;
+    Ok(json_response
+        .get("accessToken")
+        .cloned()
+        .unwrap_or_default())
+}

@@ -38,3 +38,16 @@ pub struct PaymentCallbackForm {
     pub orderItems: String,
     pub secureResponse: String,
 }
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct PaymentConfig {
+    pub token: String,
+    pub merchantCode: String,
+    pub orderReference: String,
+    pub productType: String,
+    pub paymentTimeLimit: String,
+    pub callbackUrl: String,
+    pub countryCode: String,
+    pub currency: String,
+    pub signature : String
+}

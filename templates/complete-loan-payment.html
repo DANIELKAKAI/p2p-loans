@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block main %}
+<main id="main" class="main">
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Complete payment</h5>
+                        <h5>Loan Name: <b>{{ loan.loan_name }}</b></h5>
+                        <h5>Loan Amount: <b>KES {{ loan.loan_amount }}</b></h5>
+                        <hr>
+                        <form id="submitcheckout" action="https://v3-uat.jengapgw.io/processPayment" method="POST"
+                            class="row g-3">
+                            <input type="hidden" id="token" name="token" value="{{ payment_config.token }}" />
+                            <input type="hidden" id="merchantCode" name="merchantCode"
+                                value="{{ payment_config.merchantCode }}" />
+                            <input type="hidden" id="currency" name="currency" value="{{ payment_config.currency }}" />
+                            <label>Amount To Pay</label>
+                            <input class="form-control" placeholder="Enter Amount" type="number" id="orderAmount"
+                                name="orderAmount" value="{{ loan.loan_amount }}"  />
+                            <input type="hidden" id="orderReference" name="orderReference"
+                                value="{{ payment_config.orderReference }}" />
+                            <input type="hidden" id="productType" name="productType"
+                                value="{{ payment_config.productType }}" />
+                            <input type="hidden" id="productDescription" name="productDescription"
+                                value="{{ loan.loan_name }}" />
+                            <input type="hidden" id="paymentTimeLimit" name="paymentTimeLimit"
+                                value="{{ payment_config.paymentTimeLimit }}" />
+                            <input type="hidden" id="customerFirstName" name="customerFirstName"
+                                value="{{ user.first_name }}" />
+                            <input type="hidden" id="customerLastName" name="customerLastName"
+                                value="{{ user.last_name }}" />
+                            <input type="hidden" id="customerEmail" name="customerEmail"
+                                value="{{ user.email }}" />
+                            <label>Phone Number</label>
+                            <input class="form-control" placeholder="Enter Phone Number" type="number" id="customerPhone" name="customerPhone"
+                                value="254" />
+                            <input type="hidden" id="extraData" name="extraData"
+                                value="{{ user.id }}:{{ loan.id }}" />
+                            <input type="hidden" id="callbackUrl" name="callbackUrl"
+                                value="{{ payment_config.callbackUrl }}" />
+                            <input type="hidden" id="countryCode" name="countryCode"
+                                value="{{ payment_config.countryCode }}" />
+                            <input type="hidden" id="secondaryReference" name="secondaryReference"
+                                value="{{ payment_config.orderReference }}" />
+                            <input type="hidden" id="signature" name="signature"
+                                value="{{ payment_config.signature }}" />
+
+                            <button type="submit" class="btn btn-primary">Click To Pay</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main><!-- End #main -->
+{% endblock %}
