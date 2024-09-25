@@ -86,13 +86,17 @@ pub async fn add_loan(
         interest_rate: form.interest_rate.clone(),
         repayment_period: form.repayment_period.clone(),
         lender_id: user_id,
+        amount_deposited: Some(false)
     };
 
     match insert_loan(new_loan, &mut connection_guard) {
         Ok(loan) => {
             println!("Successfully added loan: {:?}", loan);
             Ok(HttpResponse::Found()
-                .append_header((actix_web::http::header::LOCATION, "/dashboard"))
+                .append_header((
+                    actix_web::http::header::LOCATION,
+                    format!("/complete-loan-payment/{}", loan.id),
+                ))
                 .finish())
         }
         Err(e) => {
@@ -123,7 +127,7 @@ pub async fn complete_loan_payment(
             let loan = get_loan_by_id(&mut connection_guard, loan_id).unwrap();
             //let token: String = get_jenga_payment_token().unwrap();
             let payment_config = PaymentConfig {
-                token: String::from("token"),
+                token: env::var("ACCESS_TOKEN").unwrap_or("".to_string()),
                 merchantCode: env::var("JENGA_MERCHANT_CODE").unwrap_or("".to_string()),
                 orderReference: loan.id.to_string(),
                 productType: String::from("Service"),

@@ -28,6 +28,7 @@ pub struct NewLoan {
     pub interest_rate: f64,
     pub repayment_period: i32,
     pub lender_id: i32,
+    pub amount_deposited: Option<bool>
 }
 
 #[derive(Deserialize, Serialize, Debug)]
