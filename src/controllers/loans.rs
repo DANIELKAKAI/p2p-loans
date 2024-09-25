@@ -119,9 +119,9 @@ pub async fn complete_loan_payment(
             // context
             let user = get_a_user_by_id(&mut connection_guard, user_id).unwrap();
             let loan = get_loan_by_id(&mut connection_guard, loan_id).unwrap();
-            let token: String = get_jenga_payment_token().unwrap();
+            //let token: String = get_jenga_payment_token().unwrap();
             let payment_config = PaymentConfig {
-                token: token,
+                token: String::from("token"),
                 merchantCode: env::var("JENGA_MERCHANT_CODE").unwrap_or("".to_string()),
                 orderReference: loan.id.to_string(),
                 productType: String::from("Service"),

@@ -26,8 +26,7 @@
         {% endif %}
         <div class="row">
           {% for loan in loans %}
-          {% if user.user_type.as_str() == "BORROWER" && loan.loan.amount_deposited == Some(false) %}
-          {% else %}
+          {% if !(user.user_type.as_str() == "BORROWER" && loan.loan.amount_deposited == Some(false)) %}
           <!-- Revenue Card -->
           <div class="col-xxl-4 col-md-4">
             <div class="card info-card revenue-card">
@@ -53,6 +52,8 @@
                     <span class="text-success small pt-1 fw-bold">ACTIVE</span>
                     {% else %}
                     <span class="text-danger small pt-1 fw-bold">INACTIVE</span>
+                    <br>
+                    <a href="complete-loan-payment/{{loan.loan.id}}"> Click to activate</a>
                     {% endif %}
                     {% endif %}
                   </div>
