@@ -87,7 +87,7 @@ pub async fn mpesa_checkout_page(
                 &query.customerPhone.clone(),
                 &query.loan_id.clone(),
                 &query.orderAmount.clone(),
-            ).unwrap();
+            ).await.unwrap();
 
             Ok(HttpResponse::Ok()
                 .content_type("text/html")

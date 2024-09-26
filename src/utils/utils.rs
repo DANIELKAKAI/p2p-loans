@@ -1,9 +1,9 @@
-use reqwest::blocking::{Client, Response};
+use dotenvy::dotenv;
+use reqwest::{Client, Response};
 use serde_json::json;
 use std::{collections::HashMap, env};
-use dotenvy::dotenv;
 
-pub fn get_jenga_payment_token() -> Result<String, Box<dyn std::error::Error>> {
+pub async fn get_jenga_payment_token() -> Result<String, Box<dyn std::error::Error>> {
     let url = std::env::var("JENGA_API_URL")?;
     let merchant_code = std::env::var("JENGA_MERCHANT_CODE")?;
     let consumer_secret = std::env::var("JENGA_CONSUMER_SECRET")?;
@@ -20,44 +20,52 @@ pub fn get_jenga_payment_token() -> Result<String, Box<dyn std::error::Error>> {
         .header("Api-Key", api_key)
         .header("Content-Type", "application/json")
         .body(payload.to_string())
-        .send()?;
+        .send().await?;
 
-    let json_response: HashMap<String, String> = res.json()?;
+    let json_response: HashMap<String, String> = res.json().await?;
     Ok(json_response
         .get("accessToken")
         .cloned()
         .unwrap_or_default())
 }
 
+// MPESA
 
-use reqwest::header::AUTHORIZATION;
 use base64::encode;
 use chrono::Utc;
+use reqwest::header::AUTHORIZATION;
 use serde::Deserialize;
 use std::error::Error;
 
+#[derive(Deserialize)]
+struct TokenResponse {
+    access_token: String,
+}
 
-
-fn get_access_token() -> Result<String, Box<dyn Error>> {
+pub async fn get_access_token() -> Result<String, Box<dyn Error>> {
     dotenv().ok();
 
     let client = Client::new();
     let token_url = env::var("MPESA_TOKEN_URL")?;
     let consumer_key = env::var("MPESA_CONSUMER_KEY")?;
     let consumer_secret = env::var("MPESA_CONSUMER_SECRET")?;
-    
-    let response: Response = client
+
+    let response = client
         .get(token_url)
         .basic_auth(consumer_key, Some(consumer_secret))
-        .send()?;
+        .send()
+        .await?;
 
-    let token_response: TokenResponse = response.json()?;
+    let token_response: TokenResponse = response.json().await?;
 
     Ok(token_response.access_token)
 }
 
-
-fn initiate_transaction(phone_number: &str, reference: &str, amount: &str) -> Result<String, Box<dyn Error>> {
+pub async fn initiate_mpesa_transaction(
+    phone_number: &str,
+    reference: &str,
+    amount: &str,
+) -> Result<String, Box<dyn Error>> {
     dotenv().ok();
 
     let short_code = env::var("MPESA_SHORTCODE")?;
@@ -84,18 +92,14 @@ fn initiate_transaction(phone_number: &str, reference: &str, amount: &str) -> Re
     });
 
     let client = Client::new();
-    let access_token = get_access_token()?;
+    let access_token = get_access_token().await?;
 
-    let response: Response = client
+    let response = client
         .post(api_url)
         .header(AUTHORIZATION, format!("Bearer {}", access_token))
         .json(&request_body)
-        .send()?;
+        .send()
+        .await?;
 
-    Ok(response.text()?)
-}
-
-#[derive(Deserialize)]
-struct TokenResponse {
-    access_token: String,
+    Ok(response.text().await?)
 }
