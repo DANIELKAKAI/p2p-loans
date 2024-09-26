@@ -6,7 +6,7 @@ mod utils;
 
 use crate::controllers::loan_applications::{applied_loans_page, apply_loan, lended_loans_page};
 use crate::controllers::loans::{add_loan, add_loan_page, complete_loan_payment};
-use crate::controllers::payments::payment_callback;
+use crate::controllers::payments::{payment_callback, mpesa_checkout_page};
 use crate::controllers::users::{
     dashboard_page, login_page, login_user, logout_user, register_page, register_user,
 };
@@ -70,6 +70,7 @@ async fn main() -> std::io::Result<()> {
             .route("/apply-loan/{loan_id}", web::get().to(apply_loan))
             .route("/lended-loans", web::get().to(lended_loans_page))
             .route("/applied-loans", web::get().to(applied_loans_page))
+            .route("/mpesa-checkout", web::get().to(mpesa_checkout_page))
             .route("/payment-callback", web::get().to(payment_callback))
             .route("/login", web::get().to(login_page))
             .route("/login", web::post().to(login_user))

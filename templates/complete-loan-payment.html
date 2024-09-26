@@ -20,6 +20,8 @@
                             <label>Amount To Pay</label>
                             <input class="form-control" placeholder="Enter Amount" type="number" id="orderAmount"
                                 name="orderAmount" value="{{ loan.loan_amount }}" />
+                            <label>Phone Number</label>
+                            <input class="form-control" id="customerPhone" name="customerPhone" value="254" />
                             <input type="hidden" id="orderReference" name="orderReference"
                                 value="{{ payment_config.orderReference }}" />
                             <input type="hidden" id="productType" name="productType"
@@ -42,8 +44,8 @@
                                 value="{{ payment_config.orderReference }}" />
                             <input type="hidden" id="signature" name="signature"
                                 value="{{ payment_config.signature }}" />
-
-                            <button type="submit" class="btn btn-primary">Click To Pay</button>
+                            <button type="submit" class="btn btn-primary">Pay with Jenga</button>
+                            <button id="mpesa" type="submit" class="btn btn-success">Pay with Mpesa</button>
                         </form>
                     </div>
                 </div>
@@ -52,4 +54,24 @@
     </section>
 
 </main><!-- End #main -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('submitcheckout').addEventListener('submit', function (event) {
+        const clickedButton = document.activeElement;
+
+        if (clickedButton && clickedButton.id === 'mpesa') {
+            event.preventDefault();
+
+            const orderAmount = document.getElementById('orderAmount').value;
+
+            const customerPhone = document.getElementById('customerPhone').value;
+
+            const loan_id = '{{loan.id}}';
+
+            window.location.href = `/mpesa-checkout?loan_id=${loan_id}&customerPhone=${customerPhone}&orderAmount=${orderAmount}`;
+        }
+    });
+</script>
 {% endblock %}

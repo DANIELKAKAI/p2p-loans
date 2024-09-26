@@ -41,6 +41,13 @@ pub struct CompleteLoanPaymentTemplate{
 }
 
 #[derive(Template)]
+#[template(path = "mpesa-checkout.html")]
+pub struct MpesaCheckoutTemplate{
+    pub customerPhone: String,
+    pub user: User
+}
+
+#[derive(Template)]
 #[template(path = "lended-loans.html")]
 pub struct LendedLoansTemplate {
     pub user: User,

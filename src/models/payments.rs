@@ -24,7 +24,7 @@ pub struct NewPayment {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-pub struct PaymentCallbackForm {
+pub struct PaymentCallbackQuery {
     pub responseStatus: String,
     pub transactionStatus: String,
     pub orderReference: i32,
@@ -40,6 +40,13 @@ pub struct PaymentCallbackForm {
 }
 
 #[derive(Deserialize, Serialize, Debug)]
+pub struct MpesaCheckoutQuery {
+    pub orderAmount: String,
+    pub customerPhone: String,
+    pub loan_id: String
+}
+
+#[derive(Deserialize, Serialize, Debug)]
 pub struct PaymentConfig {
     pub token: String,
     pub merchantCode: String,
@@ -49,5 +56,5 @@ pub struct PaymentConfig {
     pub callbackUrl: String,
     pub countryCode: String,
     pub currency: String,
-    pub signature : String
+    pub signature: String,
 }
